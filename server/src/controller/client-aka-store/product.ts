@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import { db } from '../../db';
 import { products } from '../../db/schema/products';
-import { count, sql } from 'drizzle-orm';
+import { count, sql, eq } from 'drizzle-orm';
 import { generateFailureResponse } from '../../utils/errorUtils';
 
 interface PaginationQuery {
@@ -104,6 +104,47 @@ export const getSearchedProducts: RequestHandler = async (req: Request<{}, Searc
 
     return res.json({
       data: matchedProducts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+interface ProductParams {
+  productId: string;
+}
+
+interface ProductResponse {
+  data: typeof products.$inferSelect;
+}
+
+export const getProductById: RequestHandler = async (req: Request<ProductParams, ProductResponse, {}, {}>, res: Response<ProductResponse>, next) => {
+  try {
+    const productId = req.params.productId;
+
+    // Validate product ID
+    if (!productId) {
+      generateFailureResponse('Product ID is required', 400);
+    }
+
+    const productIdNum = parseInt(productId, 10);
+    if (isNaN(productIdNum) || productIdNum < 1) {
+      generateFailureResponse('Invalid product ID', 400);
+    }
+
+    // Get product by ID
+    const productData = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, productIdNum))
+      .limit(1);
+
+    if (productData.length === 0) {
+      generateFailureResponse('Product not found', 404);
+    }
+
+    return res.json({
+      data: productData[0],
     });
   } catch (error) {
     next(error);

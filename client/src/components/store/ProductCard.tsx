@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const navigate = useNavigate();
   const isOutOfStock = product.stock === 0;
   const { items, addItem, updateQuantity } = useCartStore();
   
@@ -24,7 +26,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const quantity = cartItem?.quantity || 0;
   const isInCart = quantity > 0;
 
-  const handleAddToCart = () => {
+  const handleCardClick = () => {
+    navigate(`/store/product/${product.id}`);
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking add to cart
     if (!isOutOfStock) {
       addItem({
         id: product.id,
@@ -36,13 +43,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  const handleIncrement = () => {
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking increment
     if (quantity > 0) {
       updateQuantity(product.id, quantity + 1);
     }
   };
 
-  const handleDecrement = () => {
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking decrement
     if (quantity > 1) {
       updateQuantity(product.id, quantity - 1);
     } else if (quantity === 1) {
@@ -54,7 +63,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div className="group relative bg-card border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
       {/* Product Image */}
-      <div className="aspect-square w-full bg-muted overflow-hidden">
+      <div 
+        className="aspect-square w-full bg-muted overflow-hidden cursor-pointer"
+        onClick={handleCardClick}
+      >
         {product.image ? (
           <img
             src={product.image}
@@ -89,7 +101,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* Product Info */}
       <div className="p-3 sm:p-4">
-        <h3 className="font-semibold text-base sm:text-lg text-foreground mb-2 line-clamp-2">
+        <h3 
+          className="font-semibold text-base sm:text-lg text-foreground mb-2 line-clamp-2 cursor-pointer hover:text-primary transition-colors"
+          onClick={handleCardClick}
+        >
           {product.name}
         </h3>
         <div className="flex items-center justify-between">

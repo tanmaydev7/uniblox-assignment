@@ -1,12 +1,15 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { products } from "./products";
+import { users } from "./users";
 
 
 // ---- ORDERS ----
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: text("user_id").notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   totalAmount: real("total_amount").notNull(),
   discountCode: text("discount_code"), // null if no discount used
   discountAmount: real("discount_amount").default(0),
