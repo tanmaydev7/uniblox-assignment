@@ -5,7 +5,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
     const statusCode = typeof err?.code == 'string'? 500 : (err.code ?? 500)
 
-    return res.status(statusCode).send({message: err.message})
+    return res.status(statusCode).send({message: err.message, error: true})
 }
 
 export class CodedError extends Error {

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 import storeRouter from './routes/client-aka-store/index';
+import { errorHandler } from './utils/errorUtils';
 
 dotenv.config(); // Load environment variables
 
@@ -18,6 +19,10 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from Express with TypeScript!');
 });
+
+app.use(
+  errorHandler
+)
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
