@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import { db } from '../../db';
 import { products } from '../../db/schema/products';
-import { count } from 'drizzle-orm';
+import { count, sql } from 'drizzle-orm';
 import { generateFailureResponse } from '../../utils/errorUtils';
 
 interface PaginationQuery {
@@ -64,6 +64,46 @@ export const getProducts: RequestHandler = async (req: Request<{}, PaginatedResp
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+interface SearchQuery {
+  q?: string;
+}
+
+interface SearchResponse {
+  data: typeof products.$inferSelect[];
+}
+
+export const getSearchedProducts: RequestHandler = async (req: Request<{}, SearchResponse, {}, SearchQuery>, res: Response<SearchResponse>, next) => {
+  try {
+    const searchQuery = req.query.q;
+
+    // Validate search query
+    if (!searchQuery || typeof searchQuery !== 'string' || searchQuery.trim().length === 0) {
+      generateFailureResponse('Search query is required', 400);
+    }
+
+    const trimmedQuery = searchQuery.trim();
+
+    // Perform case-insensitive substring search
+    // SQLite LIKE is case-insensitive by default, but we use LOWER() to ensure consistency
+    const searchPattern = `%${trimmedQuery}%`;
+
+    const matchedProducts = await db
+      .select()
+      .from(products)
+      .where(
+        sql`LOWER(${products.name}) LIKE LOWER(${sql`${searchPattern}`})`
+      )
+      .orderBy(products.id);
+
+    return res.json({
+      data: matchedProducts,
     });
   } catch (error) {
     next(error);
