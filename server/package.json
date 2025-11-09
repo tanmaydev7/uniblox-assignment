@@ -8,17 +8,19 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "drizzle-orm": "^0.44.7",
     "express": "^5.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
+    "drizzle-kit": "^0.31.6",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }
