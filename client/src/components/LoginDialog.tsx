@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '../store/cartStore';
+import { fetchCartFromAPI } from '../utils/storeUtils';
 
 interface LoginDialogProps {
   open: boolean;
@@ -45,9 +46,14 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
 
     try {
       // Store mobile number in localStorage
-      localStorage.setItem('userMobileNo', mobileNo.trim());
+      const trimmedMobileNo = mobileNo.trim();
+      localStorage.setItem('userMobileNo', trimmedMobileNo);
 
-      onLoginSuccess(mobileNo.trim());
+      // Fetch user's cart from API
+      const cartItems = await fetchCartFromAPI(trimmedMobileNo);
+      useCartStore.getState().setCart(cartItems);
+
+      onLoginSuccess(trimmedMobileNo);
       onOpenChange(false);
       setMobileNo('');
     } catch (err: any) {

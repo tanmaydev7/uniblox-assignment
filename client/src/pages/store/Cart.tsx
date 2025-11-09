@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { ShoppingBag, Trash2, CreditCard, Minus, Plus } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+import { storeAxiosInstance } from '../../utils/storeUtils';
 import { useCartStore } from '../../store/cartStore';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +13,32 @@ const Cart: React.FC = () => {
   const totalPrice = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0
+  );
+
+  // Debounced cart update API call
+  const debouncedQtyUpdate = useDebouncedCallback(
+    async () => {
+      const mobileNo = localStorage.getItem('userMobileNo');
+      if (!mobileNo) return;
+
+      const items = useCartStore.getState().items;
+      
+      try {
+        const payload = {
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+        };
+
+        await storeAxiosInstance.put('/api/v1/store/cart', payload, {
+          params: { mobileNo },
+        });
+      } catch (error) {
+        console.error('Failed to update cart:', error);
+      }
+    },
+    500 // 500ms debounce delay
   );
 
   return (
@@ -56,7 +84,10 @@ const Cart: React.FC = () => {
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
                     <div className="flex items-center gap-2">
                       <Button
-                        onClick={() => decreaseQuantity(item.id)}
+                        onClick={() => {
+                          decreaseQuantity(item.id);
+                          debouncedQtyUpdate();
+                        }}
                         variant="outline"
                         size="sm"
                       >
@@ -64,13 +95,16 @@ const Cart: React.FC = () => {
                       </Button>
                       <span className="w-12 text-center font-medium">{item.quantity}</span>
                       <Button
-                        onClick={() => increaseQuantity({
-                          id: item.id,
-                          name: item.name,
-                          price: item.price,
-                          stock: item.stock,
-                          image: item.image,
-                        })}
+                        onClick={() => {
+                          increaseQuantity({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            stock: item.stock,
+                            image: item.image,
+                          });
+                          debouncedQtyUpdate();
+                        }}
                         variant="outline"
                         size="sm"
                       >
@@ -87,6 +121,7 @@ const Cart: React.FC = () => {
                     onClick={() => {
                       // Remove item by filtering it out
                       setCart(items.filter((i) => i.id !== item.id));
+                      debouncedQtyUpdate();
                     }}
                     variant="ghost"
                     size="sm"
@@ -130,7 +165,10 @@ const Cart: React.FC = () => {
                   Proceed to Checkout
                 </Button>
                 <Button
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    debouncedQtyUpdate();
+                  }}
                   variant="outline"
                   className="w-full"
                 >

@@ -62,24 +62,42 @@ const ProductDetail: React.FC = () => {
     fetchProduct();
   }, [id]);
 
-  // Debounced increaseQuantity function
-  const debouncedIncreaseQuantity = useDebouncedCallback(
-    () => {
-      if (!product || isOutOfStock) return;
-      increaseQuantity({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        stock: product.stock,
-        image: product.image,
-      });
+  // Debounced cart update API call
+  const debouncedQtyUpdate = useDebouncedCallback(
+    async () => {
+      const mobileNo = localStorage.getItem('userMobileNo');
+      if (!mobileNo) return;
+
+      const items = useCartStore.getState().items;
+      
+      try {
+        const payload = {
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+        };
+
+        await storeAxiosInstance.put('/api/v1/store/cart', payload, {
+          params: { mobileNo },
+        });
+      } catch (error) {
+        console.error('Failed to update cart:', error);
+      }
     },
     500 // 500ms debounce delay
   );
 
   const handleAddToCart = () => {
     if (!product || isOutOfStock) return;
-    debouncedIncreaseQuantity();
+    increaseQuantity({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      image: product.image,
+    });
+    debouncedQtyUpdate();
   };
 
   const handleIncrement = () => {
@@ -91,11 +109,13 @@ const ProductDetail: React.FC = () => {
       stock: product.stock,
       image: product.image,
     });
+    debouncedQtyUpdate();
   };
 
   const handleDecrement = () => {
     if (!product || quantity === 0) return;
     decreaseQuantity(product.id);
+    debouncedQtyUpdate();
   };
 
   if (loading) {

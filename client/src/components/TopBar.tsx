@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ShoppingCart, LogIn } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
+import { fetchCartFromAPI } from '../utils/storeUtils';
 import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
 import LoginDialog from './LoginDialog';
@@ -18,6 +19,14 @@ const TopBar: React.FC = () => {
     const storedMobileNo = localStorage.getItem('userMobileNo');
     if (storedMobileNo) {
       setMobileNo(storedMobileNo);
+      // Fetch user's cart from API
+      fetchCartFromAPI(storedMobileNo)
+        .then((cartItems) => {
+          useCartStore.getState().setCart(cartItems);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch cart on initial load:', error);
+        });
     }
   }, []);
 
@@ -27,6 +36,7 @@ const TopBar: React.FC = () => {
 
   const handleLoginSuccess = (mobileNo: string) => {
     setMobileNo(mobileNo);
+    // Cart is already fetched in LoginDialog component
   };
 
   const handleLogout = () => {

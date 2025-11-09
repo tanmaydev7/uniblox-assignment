@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useCartStore } from '../../store/cartStore';
+import { storeAxiosInstance } from '../../utils/storeUtils';
 import { Button } from '@/components/ui/button';
 
 interface Product {
@@ -27,16 +28,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const quantity = cartItem?.quantity || 0;
   const isInCart = quantity > 0;
 
-  // Debounced increaseQuantity function
-  const debouncedIncreaseQuantity = useDebouncedCallback(
-    () => {
-      increaseQuantity({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        stock: product.stock,
-        image: product.image,
-      });
+  // Debounced cart update API call
+  const debouncedQtyUpdate = useDebouncedCallback(
+    async () => {
+      const mobileNo = localStorage.getItem('userMobileNo');
+      if (!mobileNo) return;
+
+      const items = useCartStore.getState().items;
+      
+      try {
+        const payload = {
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+        };
+
+        await storeAxiosInstance.put('/api/v1/store/cart', payload, {
+          params: { mobileNo },
+        });
+      } catch (error) {
+        console.error('Failed to update cart:', error);
+      }
     },
     500 // 500ms debounce delay
   );
@@ -48,7 +61,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking add to cart
     if (!isOutOfStock) {
-      debouncedIncreaseQuantity();
+        increaseQuantity({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            stock: product.stock,
+            image: product.image,
+        });
+        debouncedQtyUpdate()
     }
   };
 
@@ -62,6 +82,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         stock: product.stock,
         image: product.image,
       });
+      debouncedQtyUpdate()
     }
   };
 
@@ -69,6 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.stopPropagation(); // Prevent navigation when clicking decrement
     if (quantity > 0) {
       decreaseQuantity(product.id);
+      debouncedQtyUpdate()
     }
   };
 
