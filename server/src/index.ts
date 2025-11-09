@@ -1,12 +1,24 @@
-    import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
+import dotenv from "dotenv";
+import storeRouter from './routes/client-aka-store/index';
 
-    const app = express();
-    const port = process.env.PORT || 8000;
+dotenv.config(); // Load environment variables
 
-    app.get('/', (req: Request, res: Response) => {
-      res.send('Hello from Express with TypeScript!');
-    });
+const app = express();
+const port = process.env.PORT || 8000;
 
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
-    });
+export const DATABASE_URL = process.env.DATABASE_URL
+
+
+app.use(
+  '/api/v1/store',
+  storeRouter
+)
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello from Express with TypeScript!');
+});
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
