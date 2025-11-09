@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import storeRouter from './routes/client-aka-store/index';
 import { errorHandler } from './utils/errorUtils';
 import cors from "cors"
+import bodyParser from "body-parser";
 
 dotenv.config(); // Load environment variables
 
@@ -14,6 +15,10 @@ export const DATABASE_URL = process.env.DATABASE_URL
 app.use(cors({
   origin: "*"
 }))
+
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 

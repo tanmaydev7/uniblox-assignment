@@ -1,16 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, LogIn } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
+import LoginDialog from './LoginDialog';
 
 const TopBar: React.FC = () => {
   const navigate = useNavigate();
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const [mobileNo, setMobileNo] = useState<string | null>(null);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+
+  const { fetchCart } = useCartStore();
+
+  useEffect(() => {
+    // Check for mobile number in localStorage on mount
+    const storedMobileNo = localStorage.getItem('userMobileNo');
+    if (storedMobileNo) {
+      setMobileNo(storedMobileNo);
+      // Fetch cart from API when user is already logged in
+      fetchCart(storedMobileNo).catch((err) => {
+        console.error('Failed to fetch cart on mount:', err);
+      });
+    }
+  }, [fetchCart]);
 
   const handleCartClick = () => {
     navigate('/store/cart');
+  };
+
+  const handleLoginSuccess = (mobileNo: string) => {
+    setMobileNo(mobileNo);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userMobileNo');
+    setMobileNo(null);
+    // Clear cart on logout
+    useCartStore.getState().clearCart();
+    useCartStore.getState().setCartItems([]);
+    useCartStore.setState({ mobileNo: null });
   };
 
   return (
@@ -47,25 +77,85 @@ const TopBar: React.FC = () => {
             <SearchBar />
           </div>
 
-          {/* Cart Icon - Desktop only */}
-          <div className="relative hidden sm:block order-2 sm:order-3">
-            <Button
-              onClick={handleCartClick}
-              variant="ghost"
-              size="icon"
-              className="relative"
-              aria-label="Shopping cart"
-            >
-              <ShoppingCart className="h-6 w-6 text-foreground" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalItems > 99 ? '99+' : totalItems}
+          {/* User/Login and Cart - Desktop only */}
+          <div className="hidden sm:flex items-center gap-2 order-2 sm:order-3">
+            {mobileNo ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Hi, {mobileNo}
                 </span>
-              )}
-            </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setIsLoginDialogOpen(true)}
+                variant="outline"
+                size="sm"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Login
+              </Button>
+            )}
+            <div className="relative">
+              <Button
+                onClick={handleCartClick}
+                variant="ghost"
+                size="icon"
+                className="relative"
+                aria-label="Shopping cart"
+              >
+                <ShoppingCart className="h-6 w-6 text-foreground" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* User/Login - Mobile only */}
+          <div className="sm:hidden w-full order-2">
+            {mobileNo ? (
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-muted-foreground">
+                  Hi, {mobileNo}
+                </span>
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setIsLoginDialogOpen(true)}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </div>
+      <LoginDialog
+        open={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };

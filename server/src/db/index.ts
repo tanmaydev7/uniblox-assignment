@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
+import { cart, cartItems } from "./schema/cart"
 import dotenv from "dotenv"
 
 dotenv.config(); // Load environment variables
