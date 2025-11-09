@@ -2,6 +2,13 @@ import { defineConfig } from "@rspack/cli";
 import { rspack, type SwcLoaderOptions } from "@rspack/core";
 import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Needed because __dirname and __filename are not available in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const isDev = process.env.NODE_ENV === "development";
 
 // Target browsers, see: https://github.com/browserslist/browserslist
@@ -12,7 +19,10 @@ export default defineConfig({
 		main: "./src/main.tsx"
 	},
 	resolve: {
-		extensions: ["...", ".ts", ".tsx", ".jsx"]
+		extensions: ["...", ".ts", ".tsx", ".jsx"],
+		alias: {
+			'@':  path.resolve(__dirname),
+		}
 	},
 	module: {
 		rules: [
@@ -43,7 +53,12 @@ export default defineConfig({
 						} satisfies SwcLoaderOptions
 					}
 				]
-			}
+			},
+			{
+				test: /\.css$/,
+				use: ["postcss-loader"],
+				type: "css",
+			},
 		]
 	},
 	plugins: [
@@ -62,5 +77,5 @@ export default defineConfig({
 	},
 	experiments: {
 		css: true
-	}
+	},
 });
