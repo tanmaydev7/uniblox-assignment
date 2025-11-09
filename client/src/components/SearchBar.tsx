@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Search, X } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { storeAxiosInstance } from '../utils/storeUtils';
+import { Button } from '@/components/ui/button';
 
 interface Product {
   id: number;
@@ -96,7 +97,7 @@ const SearchBar: React.FC = () => {
   }
 
   return (
-    <div ref={searchContainerRef} className="relative flex-1 max-w-2xl">
+    <div ref={searchContainerRef} className="relative w-full">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
@@ -109,15 +110,17 @@ const SearchBar: React.FC = () => {
               setIsSearchOpen(true);
             }
           }}
-          className="w-full pl-10 pr-10 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="w-full pl-10 pr-10 py-2 text-sm sm:text-base border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         />
         {searchQuery && (
-          <button
+          <Button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            variant="ghost"
+            size="icon-sm"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 h-auto w-auto p-0 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         )}
       </div>
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { RefreshCw } from 'lucide-react';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import ProductCard from '../../components/store/ProductCard';
+import { Button } from '@/components/ui/button';
 
 interface Product {
   id: number;
@@ -79,12 +81,12 @@ const Products: React.FC = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-destructive mb-2">Error Loading Products</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <button
+          <Button
             onClick={() => fetchProducts(1, false)}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >
+            <RefreshCw className="h-4 w-4 mr-2" />
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -92,8 +94,8 @@ const Products: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-foreground mb-8">Products</h1>
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8">Products</h1>
 
         {products.length === 0 && loading ? (
           <div className="flex items-center justify-center py-20">
@@ -124,7 +126,7 @@ const Products: React.FC = () => {
             }
             scrollThreshold={0.9}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -135,12 +137,15 @@ const Products: React.FC = () => {
         {error && products.length > 0 && (
           <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-md">
             <p className="text-destructive text-sm">{error}</p>
-            <button
+            <Button
               onClick={() => fetchProducts(page, false)}
-              className="mt-2 text-sm text-destructive underline hover:no-underline"
+              variant="link"
+              size="sm"
+              className="mt-2 text-destructive"
             >
+              <RefreshCw className="h-4 w-4 mr-2" />
               Retry loading
-            </button>
+            </Button>
           </div>
         )}
       </div>
