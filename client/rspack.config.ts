@@ -1,7 +1,7 @@
 import { defineConfig } from "@rspack/cli";
 import { rspack, type SwcLoaderOptions } from "@rspack/core";
 import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
-
+import DotenvWebpackPlugin from "dotenv-webpack";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,6 +23,9 @@ export default defineConfig({
 		alias: {
 			'@':  path.resolve(__dirname),
 		}
+	},
+	devServer: {
+		historyApiFallback: true, // ensures index.html is served for all routes,
 	},
 	module: {
 		rules: [
@@ -65,7 +68,10 @@ export default defineConfig({
 		new rspack.HtmlRspackPlugin({
 			template: "./index.html"
 		}),
-		isDev ? new ReactRefreshRspackPlugin() : null
+		isDev ? new ReactRefreshRspackPlugin() : null,
+		new DotenvWebpackPlugin({
+			path: '../.env', // Path to .env file (this is the default)
+		})
 	],
 	optimization: {
 		minimizer: [

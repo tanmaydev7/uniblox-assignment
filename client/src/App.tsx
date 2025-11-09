@@ -1,14 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router";
+import RoutesManager from "./router/RoutesManager";
+
+const router = createBrowserRouter([
+  {
+    path: "*",
+    element: <RoutesManager />,
+  }
+]);
 
 function App() {
 	return (
-		<div>
-			<h1 className="text-3xl font-bold underline">
-				Hello world!
-			</h1>
-			<Button>Shadcn Btn</Button>
-		</div>
+		<RouterProvider router={router} />
 	);
 }
 

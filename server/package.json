@@ -15,11 +15,13 @@
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
     "drizzle-kit": "^0.31.6",
