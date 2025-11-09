@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
 import { useCartStore } from '../../store/cartStore';
 import { Button } from '@/components/ui/button';
 
@@ -19,12 +20,26 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const isOutOfStock = product.stock === 0;
-  const { items, addItem, updateQuantity } = useCartStore();
+  const { items, increaseQuantity, decreaseQuantity } = useCartStore();
   
   // Find if this product is in the cart
   const cartItem = items.find((item) => item.id === product.id);
   const quantity = cartItem?.quantity || 0;
   const isInCart = quantity > 0;
+
+  // Debounced increaseQuantity function
+  const debouncedIncreaseQuantity = useDebouncedCallback(
+    () => {
+      increaseQuantity({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        stock: product.stock,
+        image: product.image,
+      });
+    },
+    500 // 500ms debounce delay
+  );
 
   const handleCardClick = () => {
     navigate(`/store/product/${product.id}`);
@@ -33,7 +48,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking add to cart
     if (!isOutOfStock) {
-      addItem({
+      debouncedIncreaseQuantity();
+    }
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking increment
+    if (quantity > 0) {
+      increaseQuantity({
         id: product.id,
         name: product.name,
         price: product.price,
@@ -43,20 +65,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  const handleIncrement = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigation when clicking increment
-    if (quantity > 0) {
-      updateQuantity(product.id, quantity + 1);
-    }
-  };
-
   const handleDecrement = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking decrement
-    if (quantity > 1) {
-      updateQuantity(product.id, quantity - 1);
-    } else if (quantity === 1) {
-      // When quantity goes to 0, remove from cart
-      updateQuantity(product.id, 0);
+    if (quantity > 0) {
+      decreaseQuantity(product.id);
     }
   };
 

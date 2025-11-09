@@ -8,23 +8,18 @@ import LoginDialog from './LoginDialog';
 
 const TopBar: React.FC = () => {
   const navigate = useNavigate();
-  const totalItems = useCartStore((state) => state.getTotalItems());
+  const items = useCartStore((state) => state.items);
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
   const [mobileNo, setMobileNo] = useState<string | null>(null);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-
-  const { fetchCart } = useCartStore();
 
   useEffect(() => {
     // Check for mobile number in localStorage on mount
     const storedMobileNo = localStorage.getItem('userMobileNo');
     if (storedMobileNo) {
       setMobileNo(storedMobileNo);
-      // Fetch cart from API when user is already logged in
-      fetchCart(storedMobileNo).catch((err) => {
-        console.error('Failed to fetch cart on mount:', err);
-      });
     }
-  }, [fetchCart]);
+  }, []);
 
   const handleCartClick = () => {
     navigate('/store/cart');
@@ -39,8 +34,6 @@ const TopBar: React.FC = () => {
     setMobileNo(null);
     // Clear cart on logout
     useCartStore.getState().clearCart();
-    useCartStore.getState().setCartItems([]);
-    useCartStore.setState({ mobileNo: null });
   };
 
   return (

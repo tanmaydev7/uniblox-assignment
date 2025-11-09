@@ -24,7 +24,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
   const [mobileNo, setMobileNo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { fetchCart } = useCartStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,9 +46,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
     try {
       // Store mobile number in localStorage
       localStorage.setItem('userMobileNo', mobileNo.trim());
-
-      // Fetch cart for this user from API
-      await fetchCart(mobileNo.trim());
 
       onLoginSuccess(mobileNo.trim());
       onOpenChange(false);

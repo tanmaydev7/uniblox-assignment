@@ -18,6 +18,10 @@ export default defineConfig({
 	entry: {
 		main: "./src/main.tsx"
 	},
+	output: {
+    filename: 'bundle.js',
+    publicPath: '/', // ✅ Important for React Router
+  },
 	resolve: {
 		extensions: ["...", ".ts", ".tsx", ".jsx"],
 		alias: {

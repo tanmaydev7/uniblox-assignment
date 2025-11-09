@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { ShoppingCart, Plus, Minus, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import { useCartStore } from '../../store/cartStore';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { items, addItem, updateQuantity } = useCartStore();
+  const { items, increaseQuantity, decreaseQuantity } = useCartStore();
 
   // Find if this product is in the cart
   const cartItem = items.find((item) => item.id === product?.id);
@@ -61,10 +62,29 @@ const ProductDetail: React.FC = () => {
     fetchProduct();
   }, [id]);
 
+  // Debounced increaseQuantity function
+  const debouncedIncreaseQuantity = useDebouncedCallback(
+    () => {
+      if (!product || isOutOfStock) return;
+      increaseQuantity({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        stock: product.stock,
+        image: product.image,
+      });
+    },
+    500 // 500ms debounce delay
+  );
+
   const handleAddToCart = () => {
     if (!product || isOutOfStock) return;
+    debouncedIncreaseQuantity();
+  };
 
-    addItem({
+  const handleIncrement = () => {
+    if (!product || quantity === 0) return;
+    increaseQuantity({
       id: product.id,
       name: product.name,
       price: product.price,
@@ -73,18 +93,9 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  const handleIncrement = () => {
-    if (!product || quantity === 0) return;
-    updateQuantity(product.id, quantity + 1);
-  };
-
   const handleDecrement = () => {
     if (!product || quantity === 0) return;
-    if (quantity > 1) {
-      updateQuantity(product.id, quantity - 1);
-    } else if (quantity === 1) {
-      updateQuantity(product.id, 0);
-    }
+    decreaseQuantity(product.id);
   };
 
   if (loading) {

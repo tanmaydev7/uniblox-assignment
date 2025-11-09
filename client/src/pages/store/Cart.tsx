@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
-    useCartStore();
+  const { items, increaseQuantity, decreaseQuantity, clearCart, setCart } = useCartStore();
 
-  const totalPrice = getTotalPrice();
+  const totalPrice = items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
@@ -54,7 +56,7 @@ const Cart: React.FC = () => {
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
                     <div className="flex items-center gap-2">
                       <Button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => decreaseQuantity(item.id)}
                         variant="outline"
                         size="sm"
                       >
@@ -62,7 +64,13 @@ const Cart: React.FC = () => {
                       </Button>
                       <span className="w-12 text-center font-medium">{item.quantity}</span>
                       <Button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => increaseQuantity({
+                          id: item.id,
+                          name: item.name,
+                          price: item.price,
+                          stock: item.stock,
+                          image: item.image,
+                        })}
                         variant="outline"
                         size="sm"
                       >
@@ -76,7 +84,10 @@ const Cart: React.FC = () => {
                     </div>
                   </div>
                   <Button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => {
+                      // Remove item by filtering it out
+                      setCart(items.filter((i) => i.id !== item.id));
+                    }}
                     variant="ghost"
                     size="sm"
                     className="w-full sm:w-auto text-destructive hover:bg-destructive/10 flex-shrink-0"
