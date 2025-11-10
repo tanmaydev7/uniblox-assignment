@@ -5,6 +5,7 @@ import UnProtectedLayout from '../layouts/UnProtectedLayout'
 import Products from '../pages/store/Products'
 import ProductDetail from '../pages/store/ProductDetail'
 import Cart from '../pages/store/Cart'
+import OrderSuccess from '../pages/store/OrderSuccess'
 
 // Loading component
 const PageLoader = () => (
@@ -24,6 +25,7 @@ const RoutesManager = (props: Props) => {
                     <Route index element={<Products/>} />
                     <Route path={"product/:id"} element={<ProductDetail/>} />
                     <Route path={"cart"} element={<Cart/>} />
+                    <Route path={"order-success"} element={<OrderSuccess/>} />
                 </Route>
                 {/* <Route path={"store"} element={<Products/>} /> */}
                 {/* <Route path={"store/product/:id"} element={<ProductDetail/>} /> */}

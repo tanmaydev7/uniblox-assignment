@@ -1,0 +1,1 @@
+ALTER TABLE `orders` ADD `shipping_address` text NOT NULL;

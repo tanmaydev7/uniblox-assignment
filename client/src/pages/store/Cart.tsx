@@ -5,13 +5,16 @@ import { useDebouncedCallback } from 'use-debounce';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import { useCartStore } from '../../store/cartStore';
 import { useApplyCouponDialogStore } from '../../store/applyCouponDialogStore';
+import { useCheckoutDialogStore } from '../../store/checkoutDialogStore';
 import { Button } from '@/components/ui/button';
 import ApplyCouponDialog from '../../components/ApplyCouponDialog';
+import CheckoutDialog from '../../components/CheckoutDialog';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
   const { items, appliedCoupon, increaseQuantity, decreaseQuantity, clearCart, setCart, removeCoupon } = useCartStore();
-  const { openDialog } = useApplyCouponDialogStore();
+  const { openDialog: openCouponDialog } = useApplyCouponDialogStore();
+  const { openDialog: openCheckoutDialog } = useCheckoutDialogStore();
 
   const totalPrice = items.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -181,10 +184,6 @@ const Cart: React.FC = () => {
                   </div>
                 )}
 
-                <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
-                  <span>Shipping</span>
-                  <span className="text-xs sm:text-sm">Calculated at checkout</span>
-                </div>
                 <div className="border-t border-border pt-3 sm:pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg sm:text-xl font-bold">Total:</span>
@@ -204,14 +203,18 @@ const Cart: React.FC = () => {
 
               <div className="space-y-3">
                 <Button
-                  onClick={openDialog}
+                  onClick={openCouponDialog}
                   variant="outline"
                   className="w-full"
                 >
                   <Tag className="h-4 w-4 mr-2" />
                   {appliedCoupon ? 'Change Coupon' : 'Apply Coupon'}
                 </Button>
-                <Button className="w-full text-base sm:text-lg" size="lg">
+                <Button
+                  onClick={openCheckoutDialog}
+                  className="w-full text-base sm:text-lg"
+                  size="lg"
+                >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Proceed to Checkout
                 </Button>
@@ -232,6 +235,16 @@ const Cart: React.FC = () => {
         </div>
       )}
       <ApplyCouponDialog />
+      <CheckoutDialog
+        onCheckoutSuccess={(orderId, discountCodeCreated) => {
+          // Navigate to order success page with order ID and discount code
+          const params = new URLSearchParams({ orderId: orderId.toString() });
+          if (discountCodeCreated) {
+            params.append('discountCodeCreated', discountCodeCreated);
+          }
+          navigate(`/store/order-success?${params.toString()}`);
+        }}
+      />
     </div>
   );
 };

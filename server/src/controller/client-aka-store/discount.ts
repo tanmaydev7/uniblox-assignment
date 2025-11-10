@@ -5,6 +5,7 @@ import { orders } from '../../db/schema/orders';
 import { discountCodes } from '../../db/schema/discountCodes';
 import { eq, and, count, inArray, isNotNull } from 'drizzle-orm';
 import { generateFailureResponse } from '../../utils/errorUtils';
+import { nthOrder } from '../../constants/constant';
 
 interface DiscountQuery {
   mobileNo?: string;
@@ -78,16 +79,23 @@ export const getDiscounts: RequestHandler = async (
 
     const userOrderIds = userOrders.map((order) => order.id);
 
-    // Get available discounts (not used and matching next order number)
-    const availableDiscounts = await db
+    // Get available discounts (not used and valid for the next order number)
+    // Discount codes are created on every nth order (4th, 8th, 12th, etc. if n=4)
+    // A code created on nth order is valid for orders (nthOrder + 1) through (nthOrder + nthOrder)
+    // e.g., if n=4 and code created on order 4, it's valid for orders 5, 6, 7, 8
+    // On the next nth order (8th), a new code is created and the old one is no longer available
+    const allDiscounts = await db
       .select()
       .from(discountCodes)
-      .where(
-        and(
-          eq(discountCodes.isUsed, false),
-          eq(discountCodes.orderNumber, nextOrderNumber)
-        )
-      );
+      .where(eq(discountCodes.isUsed, false));
+
+    // Filter discounts that are valid for the next order number
+    const availableDiscounts = allDiscounts.filter((discount) => {
+      const createdOnOrder = discount.orderNumber;
+      const validFromOrder = createdOnOrder + 1;
+      const validUntilOrder = createdOnOrder + nthOrder + 1; // Exclusive upper bound
+      return nextOrderNumber >= validFromOrder && nextOrderNumber < validUntilOrder;
+    });
 
     // Get used discounts by this user
     const usedDiscounts = userOrderIds.length > 0

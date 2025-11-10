@@ -14,6 +14,7 @@ export const orders = sqliteTable("orders", {
   discountCode: text("discount_code"), // null if no discount used
   discountAmount: real("discount_amount").default(0),
   finalAmount: real("final_amount").notNull(),
+  shippingAddress: text("shipping_address").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
