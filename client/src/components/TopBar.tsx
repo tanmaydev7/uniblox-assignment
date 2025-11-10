@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ShoppingCart, LogIn } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
+import { useLoginDialogStore } from '../store/loginDialogStore';
 import { fetchCartFromAPI } from '../utils/storeUtils';
 import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ const TopBar: React.FC = () => {
   const items = useCartStore((state) => state.items);
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
   const [mobileNo, setMobileNo] = useState<string | null>(null);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const { openDialog } = useLoginDialogStore();
 
   useEffect(() => {
     // Check for mobile number in localStorage on mount
@@ -98,7 +99,7 @@ const TopBar: React.FC = () => {
               </div>
             ) : (
               <Button
-                onClick={() => setIsLoginDialogOpen(true)}
+                onClick={openDialog}
                 variant="outline"
                 size="sm"
               >
@@ -142,7 +143,7 @@ const TopBar: React.FC = () => {
               </div>
             ) : (
               <Button
-                onClick={() => setIsLoginDialogOpen(true)}
+                onClick={openDialog}
                 variant="outline"
                 size="sm"
                 className="w-full"
@@ -154,11 +155,7 @@ const TopBar: React.FC = () => {
           </div>
         </div>
       </div>
-      <LoginDialog
-        open={isLoginDialogOpen}
-        onOpenChange={setIsLoginDialogOpen}
-        onLoginSuccess={handleLoginSuccess}
-      />
+      <LoginDialog onLoginSuccess={handleLoginSuccess} />
     </div>
   );
 };

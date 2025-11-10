@@ -1,19 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { ShoppingBag, Trash2, CreditCard, Minus, Plus } from 'lucide-react';
+import { ShoppingBag, Trash2, CreditCard, Minus, Plus, Tag, X } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import { useCartStore } from '../../store/cartStore';
+import { useApplyCouponDialogStore } from '../../store/applyCouponDialogStore';
 import { Button } from '@/components/ui/button';
+import ApplyCouponDialog from '../../components/ApplyCouponDialog';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const { items, increaseQuantity, decreaseQuantity, clearCart, setCart } = useCartStore();
+  const { items, appliedCoupon, increaseQuantity, decreaseQuantity, clearCart, setCart, removeCoupon } = useCartStore();
+  const { openDialog } = useApplyCouponDialogStore();
 
   const totalPrice = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  // Calculate discount
+  const discountAmount = appliedCoupon
+    ? (totalPrice * appliedCoupon.discountPercent) / 100
+    : 0;
+  const finalPrice = totalPrice - discountAmount;
 
   // Debounced cart update API call
   const debouncedQtyUpdate = useDebouncedCallback(
@@ -145,6 +154,33 @@ const Cart: React.FC = () => {
                   <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})</span>
                   <span>${totalPrice.toFixed(2)}</span>
                 </div>
+                
+                {appliedCoupon && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 bg-primary/5 border border-primary/20 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">{appliedCoupon.code}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({appliedCoupon.discountPercent}% off)
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={removeCoupon}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
+                      <span>Discount</span>
+                      <span className="text-destructive">-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
                   <span>Shipping</span>
                   <span className="text-xs sm:text-sm">Calculated at checkout</span>
@@ -152,14 +188,29 @@ const Cart: React.FC = () => {
                 <div className="border-t border-border pt-3 sm:pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg sm:text-xl font-bold">Total:</span>
-                    <span className="text-xl sm:text-2xl font-bold">
-                      ${totalPrice.toFixed(2)}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      {appliedCoupon && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ${totalPrice.toFixed(2)}
+                        </span>
+                      )}
+                      <span className="text-xl sm:text-2xl font-bold">
+                        ${finalPrice.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
+                <Button
+                  onClick={openDialog}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Tag className="h-4 w-4 mr-2" />
+                  {appliedCoupon ? 'Change Coupon' : 'Apply Coupon'}
+                </Button>
                 <Button className="w-full text-base sm:text-lg" size="lg">
                   <CreditCard className="h-4 w-4 mr-2" />
                   Proceed to Checkout
@@ -180,6 +231,7 @@ const Cart: React.FC = () => {
           </div>
         </div>
       )}
+      <ApplyCouponDialog />
     </div>
   );
 };

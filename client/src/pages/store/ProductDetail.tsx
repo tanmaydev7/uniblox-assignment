@@ -4,6 +4,7 @@ import { ShoppingCart, Plus, Minus, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import { useCartStore } from '../../store/cartStore';
+import { useLoginDialogStore } from '../../store/loginDialogStore';
 import { Button } from '@/components/ui/button';
 
 interface Product {
@@ -25,6 +26,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { items, increaseQuantity, decreaseQuantity } = useCartStore();
+  const { openDialog } = useLoginDialogStore();
 
   // Find if this product is in the cart
   const cartItem = items.find((item) => item.id === product?.id);
@@ -90,6 +92,14 @@ const ProductDetail: React.FC = () => {
 
   const handleAddToCart = () => {
     if (!product || isOutOfStock) return;
+    
+    // Check if user is logged in
+    const mobileNo = localStorage.getItem('userMobileNo');
+    if (!mobileNo) {
+      openDialog();
+      return;
+    }
+    
     increaseQuantity({
       id: product.id,
       name: product.name,
@@ -189,13 +199,13 @@ const ProductDetail: React.FC = () => {
                   </svg>
                 </div>
               )}
-              {isOutOfStock && (
+              {/* {isOutOfStock && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
                   <span className="bg-destructive text-destructive-foreground px-6 py-3 rounded-md font-semibold text-lg">
                     Out of Stock
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 

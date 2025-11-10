@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useCartStore } from '../../store/cartStore';
+import { useLoginDialogStore } from '../../store/loginDialogStore';
 import { storeAxiosInstance } from '../../utils/storeUtils';
 import { Button } from '@/components/ui/button';
 
@@ -22,6 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const isOutOfStock = product.stock === 0;
   const { items, increaseQuantity, decreaseQuantity } = useCartStore();
+  const { openDialog } = useLoginDialogStore();
   
   // Find if this product is in the cart
   const cartItem = items.find((item) => item.id === product.id);
@@ -60,16 +62,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking add to cart
-    if (!isOutOfStock) {
-        increaseQuantity({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            stock: product.stock,
-            image: product.image,
-        });
-        debouncedQtyUpdate()
+    if (isOutOfStock) return;
+    
+    // Check if user is logged in
+    const mobileNo = localStorage.getItem('userMobileNo');
+    if (!mobileNo) {
+      openDialog();
+      return;
     }
+    
+    increaseQuantity({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      image: product.image,
+    });
+    debouncedQtyUpdate();
   };
 
   const handleIncrement = (e: React.MouseEvent) => {

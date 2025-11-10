@@ -9,19 +9,17 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '../store/cartStore';
+import { useLoginDialogStore } from '../store/loginDialogStore';
 import { fetchCartFromAPI } from '../utils/storeUtils';
 
 interface LoginDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onLoginSuccess: (mobileNo: string) => void;
 }
 
 const LoginDialog: React.FC<LoginDialogProps> = ({
-  open,
-  onOpenChange,
   onLoginSuccess,
 }) => {
+  const { isOpen, closeDialog } = useLoginDialogStore();
   const [mobileNo, setMobileNo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +52,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
       useCartStore.getState().setCart(cartItems);
 
       onLoginSuccess(trimmedMobileNo);
-      onOpenChange(false);
+      closeDialog();
       setMobileNo('');
     } catch (err: any) {
       const errorMessage =
@@ -67,12 +65,12 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Login</DialogTitle>
+          <DialogTitle>Login Required</DialogTitle>
           <DialogDescription>
-            Enter your mobile number to continue shopping
+            Please login first before adding items to your cart. Enter your mobile number to continue shopping.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -106,7 +104,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => closeDialog()}
               disabled={loading}
             >
               Cancel

@@ -9,16 +9,25 @@ export interface CartItem {
   quantity: number;
 }
 
+interface AppliedCoupon {
+  code: string;
+  discountPercent: number;
+}
+
 interface CartStore {
   items: CartItem[];
+  appliedCoupon: AppliedCoupon | null;
   increaseQuantity: (product: Omit<CartItem, 'quantity'>) => void;
   decreaseQuantity: (productId: number) => void;
   clearCart: () => void;
   setCart: (items: CartItem[]) => void;
+  applyCoupon: (coupon: AppliedCoupon) => void;
+  removeCoupon: () => void;
 }
 
 export const useCartStore = create<CartStore>()((set, get) => ({
   items: [],
+  appliedCoupon: null,
 
   increaseQuantity: (product) => {
     const items = get().items;
@@ -65,11 +74,19 @@ export const useCartStore = create<CartStore>()((set, get) => ({
   },
 
   clearCart: () => {
-    set({ items: [] });
+    set({ items: [], appliedCoupon: null });
   },
 
   setCart: (items: CartItem[]) => {
     set({ items });
+  },
+
+  applyCoupon: (coupon: AppliedCoupon) => {
+    set({ appliedCoupon: coupon });
+  },
+
+  removeCoupon: () => {
+    set({ appliedCoupon: null });
   },
 }));
 
