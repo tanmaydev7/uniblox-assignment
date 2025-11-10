@@ -5,13 +5,10 @@ import dotenv from "dotenv"
 
 dotenv.config(); // Load environment variables
 
-const DATABASE_URL = process.env.DATABASE_URL
+// Use test database if TEST_DATABASE_URL is set, otherwise use production DATABASE_URL
+const DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
 
-// import dotenv from "dotenv";
-
-// dotenv.config(); // Load environment variables
-
-// For connecting to a remote Turso database
+// For connecting to a remote Turso database or test database
 const client = createClient({
   url: DATABASE_URL!,
 });

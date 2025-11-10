@@ -17,6 +17,6 @@ export const discountCodes = sqliteTable("discount_codes", {
   isUsed: integer("is_used", { mode: "boolean" }).default(false).notNull(),
   usedByOrderId: integer("used_by_order_id")
     .references(() => orders.id, { onDelete: "set null" })
-    .default(null),
+    .default(null as any),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
