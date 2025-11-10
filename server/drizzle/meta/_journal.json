@@ -43,6 +43,13 @@
       "when": 1762736278157,
       "tag": "0005_lazy_mariko_yashida",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1762743797826,
+      "tag": "0006_free_betty_brant",
+      "breakpoints": true
     }
   ]
 }

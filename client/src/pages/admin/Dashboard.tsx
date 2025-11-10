@@ -5,14 +5,19 @@ import { useAdminAuthStore } from '../../store/adminAuthStore';
 import { adminAxiosInstance } from '../../utils/adminUtils';
 import { Loader2 } from 'lucide-react';
 
+type DiscountStatus = 'used' | 'available' | 'expired';
+
 interface DiscountCode {
   id: number;
   code: string;
+  userId: number;
+  userMobileNo: string;
   orderNumber: number;
   discountPercent: number;
   isUsed: boolean;
   usedByOrderId: number | null;
   createdAt: string | null;
+  status: DiscountStatus;
 }
 
 interface StatisticsResponse {
@@ -67,7 +72,7 @@ const AdminDashboard: React.FC = () => {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleString('en-IN', {
+      return new Date(dateString + "Z").toLocaleString('en-IN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -231,7 +236,10 @@ const AdminDashboard: React.FC = () => {
                           Code
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Order Number
+                          User Mobile
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          User Order Number
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Discount %
@@ -256,6 +264,9 @@ const AdminDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {discount.userMobileNo}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {discount.orderNumber}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -264,12 +275,18 @@ const AdminDashboard: React.FC = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                discount.isUsed
+                                discount.status === 'used'
                                   ? 'bg-red-100 text-red-800'
+                                  : discount.status === 'expired'
+                                  ? 'bg-gray-100 text-gray-800'
                                   : 'bg-green-100 text-green-800'
                               }`}
                             >
-                              {discount.isUsed ? 'Used' : 'Available'}
+                              {discount.status === 'used'
+                                ? 'Used'
+                                : discount.status === 'expired'
+                                ? 'Expired'
+                                : 'Available'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
