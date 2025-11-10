@@ -86,6 +86,7 @@ export const getSearchedProducts: RequestHandler = async (req: Request<{}, Searc
     // Validate search query
     if (!searchQuery || typeof searchQuery !== 'string' || searchQuery.trim().length === 0) {
       generateFailureResponse('Search query is required', 400);
+      return
     }
 
     const trimmedQuery = searchQuery.trim();

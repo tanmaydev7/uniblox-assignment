@@ -38,6 +38,7 @@ export const getCart: RequestHandler = async (
     // Validate mobile number
     if (!mobileNo || typeof mobileNo !== 'string' || mobileNo.trim().length === 0) {
       generateFailureResponse('Mobile number is required', 400);
+      return
     }
 
     const trimmedMobileNo = mobileNo.trim();
@@ -143,6 +144,7 @@ export const updateCart: RequestHandler = async (
     // Validate mobile number
     if (!mobileNo || typeof mobileNo !== 'string' || mobileNo.trim().length === 0) {
       generateFailureResponse('Mobile number is required', 400);
+      return
     }
 
     // Validate items array

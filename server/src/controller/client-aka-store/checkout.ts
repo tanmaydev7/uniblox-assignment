@@ -161,7 +161,7 @@ export const checkout: RequestHandler = async (
         }
 
         discountCodeId = discountRecord.id;
-        discountAmount = (totalAmount * discountRecord.discountPercent) / 100;
+        discountAmount = (totalAmount * (discountRecord.discountPercent ?? 0)) / 100;
         appliedDiscountCode = discountCode;
       }
 
