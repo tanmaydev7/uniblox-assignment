@@ -36,6 +36,13 @@
       "when": 1762734890820,
       "tag": "0004_new_greymalkin",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1762736278157,
+      "tag": "0005_lazy_mariko_yashida",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
 import storeRouter from './routes/client-aka-store/index';
+import adminRouter from './routes/admin/index';
 import { errorHandler } from './utils/errorUtils';
 import cors from "cors"
 import bodyParser from "body-parser";
@@ -25,6 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   '/api/v1/store',
   storeRouter
+)
+
+app.use(
+  '/api/v1/admin',
+  adminRouter
 )
 
 app.get('/', (req: Request, res: Response) => {

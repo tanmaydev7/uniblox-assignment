@@ -8,22 +8,27 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "seed": "ts-node-dev --transpile-only src/scripts/seedProducts.ts"
+    "seed": "ts-node-dev --transpile-only src/scripts/seedProducts.ts",
+    "create-admin": "ts-node-dev --transpile-only src/scripts/createAdminUser.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.10.0",
     "drizzle-kit": "^0.31.6",
     "ts-node-dev": "^2.0.0",
