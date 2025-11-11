@@ -93,6 +93,28 @@ export const createDiscountCode = async (
       discountPercent: 10,
       isUsed: false,
       usedByOrderId: null,
+      isGlobalOrder: false,
+      ...overrides,
+    })
+    .returning();
+  return discount;
+};
+
+export const createGlobalDiscountCode = async (
+  code: string,
+  orderNumber: number,
+  overrides: any = {}
+) => {
+  const [discount] = await db
+    .insert(discountCodes)
+    .values({
+      userId: null,
+      code,
+      orderNumber,
+      discountPercent: 10,
+      isUsed: false,
+      usedByOrderId: null,
+      isGlobalOrder: true,
       ...overrides,
     })
     .returning();

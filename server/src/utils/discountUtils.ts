@@ -4,7 +4,6 @@ import { discountCodes } from '../db/schema/discountCodes';
 import { eq, and, or, count, inArray, isNotNull, isNull } from 'drizzle-orm';
 import { generateFailureResponse } from './errorUtils';
 import { db } from '../db';
-import { getNextGlobalOrderNumber } from './checkoutUtils';
 
 /**
  * Validates and trims mobile number
@@ -53,14 +52,14 @@ export const getNextOrderNumber = async (userId: number): Promise<number> => {
 /**
  * Gets next global order number (across all users)
  */
-// export const getNextGlobalOrderNumber = async (): Promise<number> => {
-//   const orderCountResult = await db
-//     .select({ count: count() })
-//     .from(orders);
+export const getNextGlobalOrderNumber = async (): Promise<number> => {
+  const orderCountResult = await db
+    .select({ count: count() })
+    .from(orders);
 
-//   const orderCount = orderCountResult[0]?.count || 0;
-//   return orderCount + 1;
-// };
+  const orderCount = orderCountResult[0]?.count || 0;
+  return orderCount + 1;
+};
 
 /**
  * Gets user's order IDs
@@ -142,7 +141,7 @@ export const getUserDiscountCodes = async (mobileNo: string): Promise<DiscountDa
   const trimmedMobileNo = validateMobileNumber(mobileNo);
   const user = await findOrCreateUser(trimmedMobileNo);
   const nextOrderNumber = await getNextOrderNumber(user.id);
-  const nextGlobalOrderNumber = await getNextGlobalOrderNumber(db);
+  const nextGlobalOrderNumber = await getNextGlobalOrderNumber();
   const userOrderIds = await getUserOrderIds(user.id);
 
   // Get all user's discount codes AND global discount codes
