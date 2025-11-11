@@ -3,7 +3,7 @@ import { cart, cartItems } from '../db/schema/cart';
 import { products } from '../db/schema/products';
 import { orders, orderItems } from '../db/schema/orders';
 import { discountCodes } from '../db/schema/discountCodes';
-import { eq, and, count, isNull } from 'drizzle-orm';
+import { eq, and, or, count, isNull } from 'drizzle-orm';
 import { generateFailureResponse } from './errorUtils';
 import { nthOrder } from '../constants/constant';
 import { createDiscountCodeForNthOrder } from './discountCodeUtils';
@@ -120,6 +120,18 @@ export const getNextOrderNumber = async (tx: Database, userId: number) => {
 };
 
 /**
+ * Gets next global order number (across all users)
+ */
+export const getNextGlobalOrderNumber = async (tx: Database) => {
+  const orderCountResult = await tx
+    .select({ count: count() })
+    .from(orders);
+
+  const orderCount = orderCountResult[0]?.count || 0;
+  return orderCount + 1;
+};
+
+/**
  * Validates and applies discount code
  */
 export const applyDiscountCode = async (
@@ -129,13 +141,21 @@ export const applyDiscountCode = async (
   orderNumber: number,
   totalAmount: number
 ) => {
+  // Get global order number for global discount codes
+  const globalOrderNumber = await getNextGlobalOrderNumber(tx);
+
+  // Check for both user-specific codes and global codes
   const discount = await tx
     .select()
     .from(discountCodes)
     .where(
       and(
         eq(discountCodes.code, discountCode),
-        eq(discountCodes.userId, userId),
+        // Code must be either for this user OR global (userId is null)
+        or(
+          eq(discountCodes.userId, userId),
+          isNull(discountCodes.userId)
+        ),
         // Code must not be used (usedByOrderId is null)
         isNull(discountCodes.usedByOrderId),
         // We check isUsed as well for backward compatibility
@@ -150,11 +170,25 @@ export const applyDiscountCode = async (
 
   const discountRecord = discount[0];
 
-  if (discountRecord.orderNumber !== orderNumber) {
-    generateFailureResponse(
-      `This discount code is only valid for order #${discountRecord.orderNumber}, not order #${orderNumber}`,
-      400
-    );
+  // Check if it's a global discount code
+  const isGlobal = discountRecord.userId === null || discountRecord.isGlobalOrder;
+
+  if (isGlobal) {
+    // For global codes, check against global order number
+    if (discountRecord.orderNumber !== globalOrderNumber) {
+      generateFailureResponse(
+        `Next order number is not ${discountRecord.orderNumber}. Next order number is ${globalOrderNumber}`,
+        400
+      );
+    }
+  } else {
+    // For user-specific codes, check against user order number
+    if (discountRecord.orderNumber !== orderNumber) {
+      generateFailureResponse(
+        `This discount code is only valid for order #${discountRecord.orderNumber}, not order #${orderNumber}`,
+        400
+      );
+    }
   }
 
   const discountAmount = (totalAmount * (discountRecord.discountPercent ?? 0)) / 100;

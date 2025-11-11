@@ -155,7 +155,7 @@ const SearchBar: React.FC = () => {
                       {product.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      ${product.price.toFixed(2)}
+                      ₹{product.price.toFixed(2)}
                     </p>
                   </div>
                 </div>

@@ -90,7 +90,7 @@ const Cart: React.FC = () => {
                   <div className="flex-1 min-w-0 w-full sm:w-auto">
                     <h3 className="font-semibold text-base sm:text-lg truncate">{item.name}</h3>
                     <p className="text-sm sm:text-base text-muted-foreground">
-                      ${item.price.toFixed(2)} each
+                      ₹{item.price.toFixed(2)} each
                     </p>
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
@@ -125,7 +125,7 @@ const Cart: React.FC = () => {
                     </div>
                     <div className="text-right sm:text-left">
                       <p className="font-bold text-lg">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -155,7 +155,7 @@ const Cart: React.FC = () => {
               <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                 <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
                   <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 
                 {appliedCoupon && (
@@ -179,7 +179,7 @@ const Cart: React.FC = () => {
                     </div>
                     <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
                       <span>Discount</span>
-                      <span className="text-destructive">-${discountAmount.toFixed(2)}</span>
+                      <span className="text-destructive">-₹{discountAmount.toFixed(2)}</span>
                     </div>
                   </div>
                 )}
@@ -190,11 +190,11 @@ const Cart: React.FC = () => {
                     <div className="flex flex-col items-end">
                       {appliedCoupon && (
                         <span className="text-sm text-muted-foreground line-through">
-                          ${totalPrice.toFixed(2)}
+                          ₹{totalPrice.toFixed(2)}
                         </span>
                       )}
                       <span className="text-xl sm:text-2xl font-bold">
-                        ${finalPrice.toFixed(2)}
+                        ₹{finalPrice.toFixed(2)}
                       </span>
                     </div>
                   </div>

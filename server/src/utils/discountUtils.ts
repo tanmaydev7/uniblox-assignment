@@ -1,9 +1,10 @@
 import { users } from '../db/schema/users';
 import { orders } from '../db/schema/orders';
 import { discountCodes } from '../db/schema/discountCodes';
-import { eq, and, count, inArray, isNotNull, isNull } from 'drizzle-orm';
+import { eq, and, or, count, inArray, isNotNull, isNull } from 'drizzle-orm';
 import { generateFailureResponse } from './errorUtils';
 import { db } from '../db';
+import { getNextGlobalOrderNumber } from './checkoutUtils';
 
 /**
  * Validates and trims mobile number
@@ -48,6 +49,18 @@ export const getNextOrderNumber = async (userId: number): Promise<number> => {
   const orderCount = orderCountResult[0]?.count || 0;
   return orderCount + 1;
 };
+
+/**
+ * Gets next global order number (across all users)
+ */
+// export const getNextGlobalOrderNumber = async (): Promise<number> => {
+//   const orderCountResult = await db
+//     .select({ count: count() })
+//     .from(orders);
+
+//   const orderCount = orderCountResult[0]?.count || 0;
+//   return orderCount + 1;
+// };
 
 /**
  * Gets user's order IDs
@@ -129,31 +142,59 @@ export const getUserDiscountCodes = async (mobileNo: string): Promise<DiscountDa
   const trimmedMobileNo = validateMobileNumber(mobileNo);
   const user = await findOrCreateUser(trimmedMobileNo);
   const nextOrderNumber = await getNextOrderNumber(user.id);
+  const nextGlobalOrderNumber = await getNextGlobalOrderNumber(db);
   const userOrderIds = await getUserOrderIds(user.id);
 
-  // Get all user's discount codes
+  // Get all user's discount codes AND global discount codes
   const allUserCodes = await db
     .select()
     .from(discountCodes)
-    .where(eq(discountCodes.userId, user.id));
+    .where(
+      or(
+        eq(discountCodes.userId, user.id),
+        isNull(discountCodes.userId) // Include global discount codes
+      )
+    );
 
   // Separate into used, available, and expired
+  // For used codes, include both user-specific codes used by this user and global codes that have been used
   const usedDiscounts = allUserCodes.filter(
-    (code) => code.usedByOrderId !== null && userOrderIds.includes(code.usedByOrderId!)
+    (code) => {
+      if (code.usedByOrderId === null) return false;
+      
+      // If it's a global code, it's used if usedByOrderId is not null
+      // If it's a user-specific code, it's used if usedByOrderId is in userOrderIds
+      if (code.userId === null || code.isGlobalOrder) {
+        return code.usedByOrderId !== null;
+      }
+      return userOrderIds.includes(code.usedByOrderId!);
+    }
   );
 
   const availableDiscounts = allUserCodes.filter(
-    (code) =>
-      code.orderNumber === nextOrderNumber &&
-      code.usedByOrderId === null &&
-      !code.isUsed
+    (code) => {
+      if (code.usedByOrderId !== null || code.isUsed) return false;
+      
+      // For global codes, check against global order number
+      if (code.userId === null || code.isGlobalOrder) {
+        return code.orderNumber === nextGlobalOrderNumber;
+      }
+      // For user-specific codes, check against user order number
+      return code.orderNumber === nextOrderNumber;
+    }
   );
 
   const expiredDiscounts = allUserCodes.filter(
-    (code) =>
-      code.orderNumber < nextOrderNumber &&
-      code.usedByOrderId === null &&
-      !code.isUsed
+    (code) => {
+      if (code.usedByOrderId !== null || code.isUsed) return false;
+      
+      // For global codes, check against global order number
+      if (code.userId === null || code.isGlobalOrder) {
+        return code.orderNumber < nextGlobalOrderNumber;
+      }
+      // For user-specific codes, check against user order number
+      return code.orderNumber < nextOrderNumber;
+    }
   );
 
   return {

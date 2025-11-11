@@ -217,7 +217,7 @@ const ProductDetail: React.FC = () => {
 
             <div className="mb-6">
               <p className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
-                ${product.price.toFixed(2)}
+                ₹{product.price.toFixed(2)}
               </p>
               <p className="text-sm sm:text-base text-muted-foreground">
                 {product.stock > 0 ? (
@@ -282,7 +282,7 @@ const ProductDetail: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Product Details</h2>
               <div className="space-y-2 text-muted-foreground">
                 <p>Product ID: {product.id}</p>
-                <p>Price: ${product.price.toFixed(2)}</p>
+                <p>Price: ₹{product.price.toFixed(2)}</p>
                 <p>Stock Available: {product.stock} units</p>
               </div>
             </div>

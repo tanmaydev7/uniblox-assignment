@@ -67,6 +67,34 @@ export const createDiscountCodeForNthOrder = async (
     orderNumber,
     discountPercent: DISCOUNT_PERCENT,
     isUsed: false,
+    isGlobalOrder: false,
+  });
+
+  return uniqueCode;
+};
+
+/**
+ * Creates a global discount code for a specific global order number
+ * This code can be used by any user for that specific global order number
+ */
+export const createGlobalDiscountCode = async (
+  tx: Database,
+  orderNumber: number,
+  discountPercent: number = DISCOUNT_PERCENT
+): Promise<string | null> => {
+  const uniqueCode = await generateUniqueDiscountCode(tx);
+
+  if (!uniqueCode) {
+    return null;
+  }
+
+  await tx.insert(discountCodes).values({
+    code: uniqueCode,
+    userId: null,
+    orderNumber,
+    discountPercent,
+    isUsed: false,
+    isGlobalOrder: true,
   });
 
   return uniqueCode;

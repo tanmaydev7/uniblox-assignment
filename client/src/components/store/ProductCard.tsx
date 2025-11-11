@@ -153,7 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xl sm:text-2xl font-bold text-foreground">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </p>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}

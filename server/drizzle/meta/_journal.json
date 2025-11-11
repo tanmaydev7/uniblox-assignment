@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1762716520547,
-      "tag": "0000_pale_living_mummy",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1762717514930,
-      "tag": "0001_giant_morg",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1762729143998,
-      "tag": "0002_mute_sheva_callister",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1762730145545,
-      "tag": "0003_flawless_rhino",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1762734890820,
-      "tag": "0004_new_greymalkin",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1762736278157,
-      "tag": "0005_lazy_mariko_yashida",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1762743797826,
-      "tag": "0006_free_betty_brant",
+      "when": 1762901803495,
+      "tag": "0000_sparkling_white_queen",
       "breakpoints": true
     }
   ]
