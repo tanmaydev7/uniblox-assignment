@@ -6,7 +6,9 @@ import { errorHandler } from './utils/errorUtils';
 import cors from "cors"
 import bodyParser from "body-parser";
 
-dotenv.config(); // Load environment variables
+dotenv.config({
+  path: '../.env'
+}); // Load environment variables
 
 const app = express();
 const port = process.env.PORT || 8000;
