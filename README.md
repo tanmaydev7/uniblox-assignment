@@ -23,6 +23,25 @@ A full-stack e-commerce application built with React (frontend) and Express.js (
 
 For detailed setup instructions, please refer to [setup.md](./setup.md).
 
+## ⚙️ Configuration
+
+### nthOrder Value
+
+The `nthOrder` constant determines how often discount codes are automatically generated for users. By default, discount codes are generated every 4th order.
+
+**To update the nthOrder value:**
+
+1. Navigate to [server/src/constants/constant.ts](server/src/constants/constant.ts) `server/src/constants/constant.ts`
+2. Update the `nthOrder` value:
+   ```typescript
+   export const nthOrder = 4  // Change this number to your desired value
+   ```
+
+**How it works:**
+- When a user completes an order, the system checks if their next order number will be divisible by `nthOrder`
+- If yes, a discount code is generated for that user to use on their next order
+- For example, if `nthOrder = 4`, discount codes are generated on the 3rd order (for use on the 4th order), 7th order (for use on the 8th order), etc.
+
 
 ## 🛠️ Tech Stack
 
