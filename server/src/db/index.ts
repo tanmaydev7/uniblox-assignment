@@ -7,11 +7,13 @@ dotenv.config({
   path: "../.env"
 }); // Load environment variables
 
-// Use test database if TEST_DATABASE_URL is set, otherwise use production DATABASE_URL
-const DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+// Use test database when running tests (NODE_ENV=test), otherwise use production DATABASE_URL
+const DATABASE_URL = process.env.NODE_ENV === 'test' 
+  ? process.env.TEST_DATABASE_URL 
+  : process.env.DATABASE_URL;
 
 // For connecting to a remote Turso database or test database
-const client = createClient({
+export const client = createClient({
   url: DATABASE_URL!,
 });
 
