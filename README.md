@@ -2,6 +2,10 @@
 
 A full-stack e-commerce application built with React (frontend) and Express.js (backend), featuring a customer-facing store and an admin dashboard for managing products, orders, and discount codes.
 
+## 🎥 Demo
+
+Watch the demo recording to see the application in action: [demo_recording.mp4](./demo_recording.mp4)
+
 ## 🚀 Features
 
 ### Store (Customer-Facing)

@@ -28,7 +28,22 @@ This guide will help you set up the Uniblox Assignment project on your local mac
    npx drizzle-kit migrate
    ```
 
-4. Start the development server:
+4. Seed the database with dummy products:
+   ```bash
+   npm run seed
+   ```
+
+5. Create an admin user:
+   ```bash
+   npm run create-admin <username> <password>
+   ```
+   Example:
+   ```bash
+   npm run create-admin admin admin
+   ```
+   Where the first argument is the username and the second argument is the password.
+
+6. Start the development server:
    ```bash
    npm run dev
    ```
