@@ -25,7 +25,7 @@ Watch the demo recording to see the application in action: [demo_recording.mp4](
 
 ## 🚦 Getting Started
 
-For detailed setup instructions, please refer to [setup.md](./setup.md).
+For detailed setup instructions, please refer to [setup.md](./SETUP.md).
 
 ## ⚙️ Configuration
 
