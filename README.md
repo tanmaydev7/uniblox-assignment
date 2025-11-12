@@ -4,7 +4,7 @@ A full-stack e-commerce application built with React (frontend) and Express.js (
 
 ## 🎥 Demo
 
-Watch the demo recording to see the application in action: [demo_recording.mp4](./demo_recording.mp4)
+Watch the demo recording to see the application in action: [demo_recording.mp4](./demo_recording.mp4) or https://screenrec.com/share/ZPiy8t7VoK
 
 ## 🚀 Features
 
